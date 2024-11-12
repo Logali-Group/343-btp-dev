@@ -43,7 +43,7 @@ define root view entity Z_C_TRAVEL_343
       CurrencyCode,
       Description,
       
-      @ObjectModel.text.element: [ 'CustomerName' ]
+      @ObjectModel.text.element: [ 'OverallStatusText' ]
       @Consumption.valueHelpDefinition: [{ entity: { name: '/DMO/I_Overall_Status_VH',
                                                      element: 'OverallStatus'},
                                             useForValidation: true }]

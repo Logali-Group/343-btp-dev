@@ -1,0 +1,7 @@
+@EndUserText.label: 'Travel'
+define service Z_SD_TRAVEL_343
+  provider contracts odata_v4_ui {
+  expose Z_C_TRAVEL_343  as Travel;
+  expose Z_C_BOOKING_343 as Booking;
+  expose Z_C_BKSUPPL_343 as BookingSupplement;
+}
