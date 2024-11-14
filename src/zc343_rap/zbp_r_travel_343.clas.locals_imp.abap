@@ -111,9 +111,16 @@ class lhc_Travel implementation.
 
       append value #( %tky = <key_valid_discount>-%tky ) to failed-travel.
 
+      append value #( %tky                     = <key_valid_discount>-%tky
+                      %msg                       = new /dmo/cm_flight_messages(
+                                                             textid   = /dmo/cm_flight_messages=>discount_invalid
+                                                             severity = if_abap_behv_message=>severity-error )
+                      %element-BookingFee        = if_abap_behv=>mk-on
+                      %op-%action-deductDiscount = if_abap_behv=>mk-on ) to reported-travel.
+
     endloop.
 
-    "check failed-travel is initial.
+    check failed-travel is initial.
 
     read entities of Z_r_TRAVEL_343 in local mode
            entity Travel
@@ -179,6 +186,12 @@ class lhc_Travel implementation.
   endmethod.
 
   method calculateTotalPrice.
+
+     modify entities of Z_r_TRAVEL_343 in local mode
+       entity Travel
+       execute reCalcTotalPrice
+       from corresponding #( keys ).
+
   endmethod.
 
   method setStatusOpen.
@@ -232,12 +245,123 @@ class lhc_Travel implementation.
   endmethod.
 
   method validateAgency.
+
+    data agencies type sorted table of /dmo/agency with unique key client agency_id.
+
+    read entities of Z_r_TRAVEL_343 in local mode
+         entity Travel
+         fields ( AgencyID )
+         with corresponding #( keys )
+         result data(travels).
+
+    agencies = corresponding #( travels discarding duplicates mapping agency_id = AgencyID except * ).
+    delete agencies where agency_id is initial.
+
+    if agencies is not initial.
+      select from /dmo/agency as ddbb
+             inner join @agencies as http_req on ddbb~agency_id eq http_req~agency_id
+             fields ddbb~agency_id
+             into table @data(valid_agencies).
+    endif.
+
+    loop at travels into data(travel).
+
+      if travel-AgencyID is initial.
+
+        append value #( %tky = travel-%tky ) to failed-travel.
+
+        append value #( %tky                = travel-%tky
+                        %state_area         = 'VALIDATE_AGENCY'
+                        %msg                = new /dmo/cm_flight_messages(
+                                                               textid   = /dmo/cm_flight_messages=>enter_agency_id
+                                                               severity = if_abap_behv_message=>severity-error )
+                        %element-AgencyID = if_abap_behv=>mk-on ) to reported-travel.
+
+      elseif not line_exists( valid_agencies[ agency_id = travel-AgencyID ] ).
+
+        append value #( %tky = travel-%tky ) to failed-travel.
+
+        append value #( %tky                = travel-%tky
+                        %state_area         = 'VALIDATE_AGENCY'
+                        %msg                = new /dmo/cm_flight_messages(
+                                                               textid      = /dmo/cm_flight_messages=>agency_unkown
+                                                               agency_id   = travel-AgencyID
+                                                               severity    = if_abap_behv_message=>severity-error )
+                        %element-AgencyID = if_abap_behv=>mk-on ) to reported-travel.
+
+      endif.
+
+
+    endloop.
+
+
   endmethod.
 
   method validateCurrencyCode.
   endmethod.
 
   method validateCustomer.
+
+*T1 C1
+*T2 C2
+*T3 C2
+*T4 C4
+*T5 C1
+*
+*C1
+*C2
+*C4 ?????
+*
+*C2
+*C4
+
+    data customers type sorted table of /dmo/customer with unique key client customer_id.
+
+    read entities of Z_r_TRAVEL_343 in local mode
+         entity Travel
+         fields ( CustomerID )
+         with corresponding #( keys )
+         result data(travels).
+
+    customers = corresponding #( travels discarding duplicates mapping customer_id = CustomerID except * ).
+
+    if customers is not initial.
+      select from /dmo/customer as ddbb
+             inner join @customers as http_req on ddbb~customer_id eq http_req~customer_id
+             fields ddbb~customer_id
+             into table @data(valid_customers).
+    endif.
+
+    loop at travels into data(travel).
+
+      if travel-CustomerID is initial.
+
+        append value #( %tky = travel-%tky ) to failed-travel.
+
+        append value #( %tky                = travel-%tky
+                        %state_area         = 'VALIDATE_CUSTOMER'
+                        %msg                = new /dmo/cm_flight_messages(
+                                                               textid   = /dmo/cm_flight_messages=>enter_customer_id
+                                                               severity = if_abap_behv_message=>severity-error )
+                        %element-CustomerID = if_abap_behv=>mk-on ) to reported-travel.
+
+      elseif travel-CustomerID is not initial and not line_exists( valid_customers[ customer_id = travel-CustomerID ] ).
+
+        append value #( %tky = travel-%tky ) to failed-travel.
+
+        append value #( %tky                = travel-%tky
+                        %state_area         = 'VALIDATE_CUSTOMER'
+                        %msg                = new /dmo/cm_flight_messages(
+                                                               textid      = /dmo/cm_flight_messages=>customer_unkown
+                                                               customer_id = travel-CustomerID
+                                                               severity    = if_abap_behv_message=>severity-error )
+                        %element-CustomerID = if_abap_behv=>mk-on ) to reported-travel.
+
+      endif.
+
+
+    endloop.
+
   endmethod.
 
   method validateDates.

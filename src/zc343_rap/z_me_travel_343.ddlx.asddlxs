@@ -79,12 +79,16 @@ annotate entity Z_C_TRAVEL_343 with
         identification: [{ position: 70 }]}
   TotalPrice;
 
-  @UI: { lineItem: [{  position: 70, importance: #MEDIUM}],
-          identification: [{ position: 70 }]}
+  @UI: { lineItem: [{  position: 71, importance: #HIGH}],
+        identification: [{ position: 71 }]}
+  PriceWithVAT;
+
+  @UI: { lineItem: [{  position: 80, importance: #MEDIUM}],
+          identification: [{ position: 80 }]}
   Description;
 
-  @UI: { lineItem: [{  position: 70, importance: #HIGH}],
-         identification: [{ position: 70 }],
+  @UI: { lineItem: [{  position: 90, importance: #HIGH}],
+         identification: [{ position: 90 }],
          selectionField: [{  position: 40 }],
          textArrangement: #TEXT_ONLY }
   OverallStatus;
