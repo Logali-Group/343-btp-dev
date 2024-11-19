@@ -3,7 +3,9 @@ class zbp_r_travel_343 definition
                        abstract
                        final
                        for behavior of z_r_travel_343.
-endclass.
+ENDCLASS.
 
-class zbp_r_travel_343 implementation.
-endclass.
+
+
+CLASS ZBP_R_TRAVEL_343 IMPLEMENTATION.
+ENDCLASS.

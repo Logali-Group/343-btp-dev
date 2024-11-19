@@ -1,5 +1,7 @@
 class zbp_r_bksuppl_343 definition public abstract final for behavior of z_r_travel_343.
-endclass.
+ENDCLASS.
 
-class zbp_r_bksuppl_343 implementation.
-endclass.
+
+
+CLASS ZBP_R_BKSUPPL_343 IMPLEMENTATION.
+ENDCLASS.

@@ -33,9 +33,61 @@ class lhc_BookingSupplement implementation.
   endmethod.
 
   method calculateTotalPrice.
+
+    " Parent UUIDs
+    read entities of z_r_travel_343 in local mode
+         entity BookingSupplement by \_Travel
+         fields ( TravelUUID  )
+         with corresponding #(  keys  )
+         result data(travels).
+
+    " Trigger Travel Internal Action
+    modify entities of z_r_travel_343 in local mode
+      entity Travel
+        execute reCalcTotalPrice
+          from corresponding  #( travels ).
+
+
   endmethod.
 
   method setBookSuppNumber.
+
+    data max_bookingsupplementid type /dmo/booking_supplement_id.
+    data bookingsupplements_update type table for update z_r_travel_343\\BookingSupplement.
+
+    read entities of z_r_travel_343 in local mode
+      entity BookingSupplement by \_Booking
+        fields (  BookingUUUID  )
+        with corresponding #( keys )
+      result data(bookings).
+
+    loop at bookings into data(ls_booking).
+      read entities of z_r_travel_343 in local mode
+        entity Booking by \_BookingSupplement
+          fields ( BookingSupplementID )
+          with value #( ( %tky = ls_booking-%tky ) )
+        result data(bookingsupplements).
+
+      max_bookingsupplementid = '00'.
+      loop at bookingsupplements into data(bookingsupplement).
+        if bookingsupplement-BookingSupplementID > max_bookingsupplementid.
+          max_bookingsupplementid = bookingsupplement-BookingSupplementID.
+        endif.
+      endloop.
+
+      loop at bookingsupplements into bookingsupplement where BookingSupplementID is initial.
+        max_bookingsupplementid += 1.
+        append value #( %tky                = bookingsupplement-%tky
+                        bookingsupplementid = max_bookingsupplementid
+                      ) to bookingsupplements_update.
+
+      endloop.
+    endloop.
+
+    modify entities of z_r_travel_343 in local mode
+      entity BookingSupplement
+        update fields ( BookingSupplementID ) with bookingsupplements_update.
+
   endmethod.
 
   method validateCurrencyCode.

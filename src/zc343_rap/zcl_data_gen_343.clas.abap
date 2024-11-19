@@ -7,11 +7,12 @@ class zcl_data_gen_343 definition
     interfaces if_oo_adt_classrun.
   protected section.
   private section.
-endclass.
+ENDCLASS.
 
 
 
-class zcl_data_gen_343 implementation.
+CLASS ZCL_DATA_GEN_343 IMPLEMENTATION.
+
 
   method if_oo_adt_classrun~main.
 
@@ -102,5 +103,4 @@ class zcl_data_gen_343 implementation.
     endif.
 
   endmethod.
-
-endclass.
+ENDCLASS.
